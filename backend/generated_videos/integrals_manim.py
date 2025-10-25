@@ -28,10 +28,10 @@ class IntegralConcept(Scene):
         def func(x):
             return x**2
 
-        graph = axes.get_graph(func, x_range=[0, 3], color=BLUE) # Graph from x=0 to x=3
+        graph = axes.plot(func, x_range=[0, 3], color=BLUE) # Graph from x=0 to x=3
 
         # Label the function.
-        func_label = MathTex("f(x) = x^2", color=BLUE).next_to(graph, UP + RIGHT, buff=0.2)
+        func_label = Text("f(x) = x²", font_size=32, color=BLUE).next_to(graph, UP + RIGHT, buff=0.2)
 
         # Animate the creation of axes, graph, and labels.
         self.play(Create(axes), Create(axes_labels))
@@ -44,12 +44,12 @@ class IntegralConcept(Scene):
         b = 2.5
 
         # Create vertical lines at a and b.
-        a_line = axes.get_vertical_line(axes.input_to_graph_point(a, graph), color=RED)
-        b_line = axes.get_vertical_line(axes.input_to_graph_point(b, graph), color=RED)
+        a_line = axes.get_vertical_line(axes.i2gp(a, graph), color=RED)
+        b_line = axes.get_vertical_line(axes.i2gp(b, graph), color=RED)
 
         # Create labels for a and b.
-        a_label_text = MathTex("a", color=RED).next_to(a_line, DOWN, buff=0.1)
-        b_label_text = MathTex("b", color=RED).next_to(b_line, DOWN, buff=0.1)
+        a_label_text = Text("a", font_size=28, color=RED).next_to(a_line, DOWN, buff=0.1)
+        b_label_text = Text("b", font_size=28, color=RED).next_to(b_line, DOWN, buff=0.1)
 
         self.play(
             Create(a_line), Write(a_label_text),
@@ -129,10 +129,10 @@ class IntegralConcept(Scene):
         self.wait(1)
 
         # --- 4. Integral Notation ---
-        # Define the integral notation.
-        integral_notation = MathTex(
-            "\\int_{a}^{b} f(x) \\, dx",
-            font_size=60,
+        # Define the integral notation using Text (Unicode integral symbol).
+        integral_notation = Text(
+            "∫ᵇₐ f(x) dx",
+            font_size=48,
             color=WHITE
         ).next_to(axes, DOWN, buff=1.0) # Position below the axes
 
@@ -140,30 +140,27 @@ class IntegralConcept(Scene):
         self.play(Write(integral_notation))
         self.wait(1)
 
-        # Highlight different parts of the integral.
-        # Highlight f(x).
+        # Highlight f(x) part of the integral.
         self.play(
             graph.animate.set_stroke(width=6, color=YELLOW),
             func_label.animate.set_color(YELLOW),
-            integral_notation[3].animate.set_color(YELLOW), # f(x) part
+            integral_notation.animate.set_color(YELLOW),
             run_time=1
         )
         self.wait(0.5)
         self.play(
             graph.animate.set_stroke(width=4, color=BLUE),
             func_label.animate.set_color(BLUE),
-            integral_notation[3].animate.set_color(WHITE),
+            integral_notation.animate.set_color(WHITE),
             run_time=0.5
         )
 
-        # Highlight a and b.
+        # Highlight a and b bounds.
         self.play(
             a_line.animate.set_color(YELLOW),
             b_line.animate.set_color(YELLOW),
             a_label_text.animate.set_color(YELLOW),
             b_label_text.animate.set_color(YELLOW),
-            integral_notation[1].animate.set_color(YELLOW), # a part
-            integral_notation[2].animate.set_color(YELLOW), # b part
             run_time=1
         )
         self.wait(0.5)
@@ -172,8 +169,6 @@ class IntegralConcept(Scene):
             b_line.animate.set_color(RED),
             a_label_text.animate.set_color(RED),
             b_label_text.animate.set_color(RED),
-            integral_notation[1].animate.set_color(WHITE),
-            integral_notation[2].animate.set_color(WHITE),
             run_time=0.5
         )
         self.wait(2)
