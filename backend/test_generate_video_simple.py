@@ -46,17 +46,7 @@ def main():
         # Show file size
         file_size = os.path.getsize(file_path)
         print(f"\n📊 File size: {file_size} bytes")
-        
-        # Ask if user wants to see the generated code
-        show_code = input("\n👀 Would you like to see the generated code? (y/n): ").strip().lower()
-        if show_code in ['y', 'yes']:
-            print("\n" + "=" * 60)
-            print("GENERATED MANIM CODE:")
-            print("=" * 60)
-            with open(file_path, 'r', encoding='utf-8') as f:
-                print(f.read())
-            print("=" * 60)
-        
+        print(f"📁 File path: {file_path}")
     except Exception as e:
         print(f"\n❌ ERROR: {str(e)}")
         sys.exit(1)
