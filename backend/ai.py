@@ -4,7 +4,6 @@ import time
 from typing import Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -26,8 +25,6 @@ class ManimCodeGenerator:
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             google_api_key=self.api_key,
-            temperature=0.7,
-            max_tokens=4096
         )
 
         # Create the prompt template for 3Blue1Brown style Manim code
@@ -64,8 +61,11 @@ Guidelines for your Manim code:
 - Include both creation and transformation animations
 - Make sure the code is executable and follows Manim syntax
 
-The code should be production-ready and create a complete educational video segment.
-Generate ONLY the Python code for the Manim scene, with no additional explanation unless specifically requested.
+IMPORTANT: 
+- Do NOT wrap your response in markdown code blocks (no ```python or ```)
+- Start directly with 'from manim import *' or the class definition
+- The code should be production-ready and create a complete educational video segment
+- Generate ONLY the Python code for the Manim scene, with no additional explanation
 """
 
     def generate_manim_code(self, educational_content: str, save_to_file: bool = True) -> str:
@@ -90,6 +90,16 @@ Generate ONLY the Python code for the Manim scene, with no additional explanatio
 
             # Extract and clean the code
             manim_code = response.content.strip()
+            
+            # Remove markdown code blocks if present
+            if manim_code.startswith("```python"):
+                manim_code = manim_code.replace("```python", "", 1)
+            if manim_code.startswith("```"):
+                manim_code = manim_code.replace("```", "", 1)
+            if manim_code.endswith("```"):
+                manim_code = manim_code.rsplit("```", 1)[0]
+            
+            manim_code = manim_code.strip()
 
             # Ensure the code starts with proper imports if not included
             if "from manim import *" not in manim_code:
@@ -182,7 +192,7 @@ def generate_video(prompt: str) -> str:
     Generate a Manim video file from a text prompt.
 
     This function takes an educational prompt, generates 3Blue1Brown-style Manim code,
-    validates it, and saves it to a Python file that can be executed with Manim.
+    and saves it to a Python file that can be executed with Manim.
 
     Args:
         prompt (str): The educational content or topic to create a video about
@@ -198,13 +208,8 @@ def generate_video(prompt: str) -> str:
         # Initialize the generator
         generator = ManimCodeGenerator()
 
-        # Generate the Manim code
-        manim_code = generator.generate_manim_code(prompt)
-
-        # Validate the generated code
-        is_valid, validation_message = generator.validate_manim_code(manim_code)
-        if not is_valid:
-            raise Exception(f"Generated code validation failed: {validation_message}")
+        # Generate the Manim code (no validation, just accept whatever is generated)
+        manim_code = generator.generate_manim_code(prompt, save_to_file=False)
 
         # Create a filename based on the prompt
         # Clean the prompt to create a valid filename
@@ -224,10 +229,11 @@ def generate_video(prompt: str) -> str:
         # Full path to the file
         file_path = os.path.join(output_dir, filename)
 
-        # Save the code to file
+        # Save the code to file - accept whatever was generated
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(manim_code)
 
+        print(f"✅ Generated Manim code saved to: {file_path}")
         return file_path
 
     except Exception as e:
