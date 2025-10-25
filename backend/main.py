@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 import uvicorn
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 # Local AI - Nursalim
 from ai import generate_video
@@ -9,6 +10,15 @@ from ai import generate_video
 from meval import eval_file
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
@@ -30,16 +40,19 @@ async def root():
 """
 @app.get("/prompt")
 async def prompt_endpoint(prompt: str):
+    if prompt == "test":
+        # Overwrite!!
+        video_link = "http://127.0.0.1:8000/media/videos/quadratic_manim/480p15/QuadraticEquation.mp4"
+
+        return {"message": "Prompt received: {prompt}", "video_url": video_link}
+
     print("Prompt", prompt)
 
     filepath: str = generate_video(prompt)
-    print("File Path", filepath)
+    print("file path", filepath)
 
     video_link: str = eval_file(filepath)
-    print("Video Link", video_link)
-
-    # Overwrite!!
-    video_link = "http://127.0.0.1:8000/media/videos/quadratic_manim/480p15/QuadraticEquation.mp4"
+    print("video link", video_link)
 
     return {"message": "Prompt received: {prompt}", "video_url": video_link}
 
