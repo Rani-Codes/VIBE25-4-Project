@@ -1,6 +1,12 @@
 from fastapi import FastAPI
 import uvicorn
 
+# Local AI - Nursalim
+from ai import generate_video
+
+# Local Manum eval - Bardia
+from meval import eval_file
+
 app = FastAPI()
 
 
@@ -13,11 +19,22 @@ async def root():
 
     http://localhost:8000/prompt?prompt=your_text_here
 
+   {
+     "message": "Prompt received: hello",
+     "video_url": "http://localhost:5000/video/123"
+   }
+
 """
 @app.get("/prompt")
 async def prompt_endpoint(prompt: str):
-    print(f"Received prompt: {prompt}")
-    return {"message": f"Prompt received: {prompt}"}
+
+    filepath: str = generate_video(prompt)
+    print("File Path", filepath)
+
+    video_link: str = eval_file(filepath)
+    print("Video Link", video_link)
+
+    return {"message": "Prompt received: {prompt}", "video_url": video_link}
 
 
 if __name__ == "__main__":
