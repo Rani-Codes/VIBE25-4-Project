@@ -1,6 +1,10 @@
 Run this to render!!
 
 ```
+pip install manim
+```
+
+```
 manim -pql <python filename> <Class Name>
 ```
 
