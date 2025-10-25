@@ -57,6 +57,7 @@ Style & Visual Identity (3Blue1Brown-inspired):
 6. Strategic composition: centered layout, balanced spacing, use of VGroup where appropriate
 7. Combination of geometry, graphs, and equations for conceptual clarity
 8. Elegantly timed transitions using self.wait(), FadeIn, Write, Transform, etc.
+9. Only use the basic colors and shapes available in base Manim without any external libraries or custom color definitions.
 
 Technical Guidelines:
 - Inherit from Scene (e.g., class MyScene(Scene):)

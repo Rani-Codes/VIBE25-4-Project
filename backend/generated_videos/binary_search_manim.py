@@ -12,7 +12,7 @@ class BinarySearchVisualization(Scene):
         # Each element is a square with its number inside
         array_elements = VGroup()
         for i, num in enumerate(data):
-            square = Square(side_length=1.0, color=BLUE_GREY, fill_opacity=0.2)
+            square = Square(side_length=1.0, color=BLUE, fill_opacity=0.2)
             number_text = MathTex(str(num)).move_to(square.center)
             element = VGroup(square, number_text)
             array_elements.add(element)
