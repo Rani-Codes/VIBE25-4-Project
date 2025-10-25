@@ -40,7 +40,7 @@ export default function Home() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        text: "Here's a test video for you! This is using Big Buck Bunny, a popular open-source test video.",
+        text: "Here's a test video for you! This is the quadratic equation explained.",
         videoUrl: "http://127.0.0.1:8000/media/videos/quadratic_manim/480p15/QuadraticEquation.mp4",
         timestamp: new Date(),
       };
