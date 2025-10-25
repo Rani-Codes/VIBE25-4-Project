@@ -4,3 +4,4 @@ langchain
 langchain-google-genai
 python-dotenv
 manim
+langchain_core
