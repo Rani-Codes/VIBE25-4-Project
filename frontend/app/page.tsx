@@ -41,7 +41,7 @@ export default function Home() {
         id: (Date.now() + 1).toString(),
         type: "assistant",
         text: "Here's a test video for you! This is using Big Buck Bunny, a popular open-source test video.",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        videoUrl: "http://127.0.0.1:8000/media/videos/quadratic_manim/480p15/QuadraticEquation.mp4",
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
