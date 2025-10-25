@@ -24,6 +24,35 @@ export default function Home() {
     scrollToBottom();
   }, [messages]);
 
+  const handleTestVideo = () => {
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: "user",
+      text: "Show me a test video",
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    // Simulate API delay
+    setTimeout(() => {
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: "assistant",
+        text: "Here's a test video for you! This is using Big Buck Bunny, a popular open-source test video.",
+        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleClearChat = () => {
+    setMessages([]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -37,13 +66,14 @@ export default function Home() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const currentPrompt = inputText;
     setInputText("");
     setIsLoading(true);
 
     try {
       // Call the backend API
       const response = await fetch(
-        `http://localhost:8000/prompt?prompt=${encodeURIComponent(inputText)}`
+        `http://localhost:8000/prompt?prompt=${encodeURIComponent(currentPrompt)}`
       );
 
       if (!response.ok) {
@@ -78,55 +108,123 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black">
+    <div className="flex flex-col h-screen bg-black relative overflow-hidden">
+      {/* Animated background */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff2e63] rounded-full mix-blend-multiply filter blur-[128px] animate-pulse"></div>
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-[#ff6b35] rounded-full mix-blend-multiply filter blur-[128px] animate-pulse [animation-delay:1s]"></div>
+        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-[#ffb800] rounded-full mix-blend-multiply filter blur-[128px] animate-pulse [animation-delay:2s]"></div>
+      </div>
+
       {/* Header */}
-      <div className="bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 shadow-sm">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Video Generator Chat
+      <div className="relative z-10 bg-zinc-950/50 backdrop-blur-xl border-b border-[#ff2e63]/20 px-6 py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-[#ff2e63] to-[#ff6b35] flex items-center justify-center shadow-xl border border-white/10">
+              <svg
+                className="w-7 h-7 text-white"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold bg-linear-to-r from-[#ff2e63] via-[#ff6b35] to-[#ffb800] bg-clip-text text-transparent tracking-tight">
+                VIBE.GEN
           </h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
-            Chat with AI to generate videos from your prompts
-          </p>
+              <p className="text-xs text-zinc-400 font-mono tracking-wide">
+                Video Generation Engine
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleTestVideo}
+              disabled={isLoading}
+              className="px-3 py-1.5 text-xs font-semibold text-[#ff2e63] hover:text-white bg-[#ff2e63]/10 hover:bg-[#ff2e63]/20 border border-[#ff2e63]/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Test
+            </button>
+            
+            {messages.length > 0 && (
+              <button
+                onClick={handleClearChat}
+                className="px-3 py-1.5 text-xs font-semibold text-zinc-400 hover:text-[#ff2e63] hover:bg-zinc-900/50 border border-zinc-800 hover:border-[#ff2e63]/30 rounded-lg transition-all flex items-center gap-2"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Clear
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+      <div className="relative z-10 flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-5xl mx-auto space-y-6">
           {messages.length === 0 && (
-            <div className="text-center py-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-4">
-                <svg
-                  className="w-8 h-8 text-blue-600 dark:text-blue-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
+            <div className="text-center py-20 animate-in fade-in duration-500">
+              <div className="relative inline-block mb-8">
+                <div className="absolute inset-0 bg-linear-to-br from-[#ff2e63] to-[#ff6b35] rounded-3xl blur-xl animate-pulse"></div>
+                <div className="relative w-24 h-24 rounded-3xl bg-linear-to-br from-[#ff2e63] to-[#ff6b35] flex items-center justify-center shadow-2xl border-2 border-white/20">
+                  <svg
+                    className="w-12 h-12 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
               </div>
-              <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-2">
-                Start a conversation
+              <h3 className="text-4xl font-bold text-white mb-4 tracking-tight">
+                Ready to Create
               </h3>
-              <p className="text-zinc-600 dark:text-zinc-400">
-                Send a message to generate your first video
+              <p className="text-zinc-400 mb-8 max-w-md mx-auto font-mono text-sm tracking-wide">
+                Type your prompt below or hit test to see magic happen
               </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <button
+                  onClick={handleTestVideo}
+                  disabled={isLoading}
+                  className="group relative px-6 py-3 bg-linear-to-br from-[#ff2e63] to-[#ff6b35] hover:from-[#ff1744] hover:to-[#ff2e63] text-white font-bold rounded-xl shadow-2xl hover:shadow-[#ff2e63]/50 transition-all disabled:opacity-50 flex items-center gap-2 border border-white/20"
+                >
+                  <svg className="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  Launch Test
+                </button>
+              </div>
             </div>
           )}
 
-          {messages.map((message) => (
+          {messages.map((message, index) => (
             <div
               key={message.id}
-              className={`flex ${
+              className={`flex gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500 ${
                 message.type === "user" ? "justify-end" : "justify-start"
               }`}
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
+              {/* Assistant Avatar */}
+              {message.type === "assistant" && (
+                <div className="shrink-0 w-12 h-12 rounded-2xl bg-linear-to-br from-[#ff2e63] to-[#ff6b35] flex items-center justify-center shadow-xl border border-white/10">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              )}
+
               <div
                 className={`max-w-3xl ${
                   message.type === "user" ? "ml-12" : "mr-12"
@@ -134,65 +232,81 @@ export default function Home() {
               >
                 {/* User Message */}
                 {message.type === "user" && (
-                  <div className="bg-blue-600 text-white rounded-2xl px-6 py-4 shadow-md">
-                    <p className="text-sm leading-relaxed">{message.text}</p>
+                  <div className="bg-zinc-950/90 backdrop-blur-sm text-white rounded-2xl rounded-tr-md px-6 py-4 shadow-xl border border-[#ff6b35]/30 hover:border-[#ff6b35]/50 transition-all">
+                    <p className="text-sm leading-relaxed font-medium">{message.text}</p>
+                    <p className="text-xs text-[#ffb800] mt-2 font-mono tracking-wide">
+                      {message.timestamp.toLocaleTimeString()}
+                    </p>
                   </div>
                 )}
 
                 {/* Assistant Message */}
                 {message.type === "assistant" && (
-                  <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-lg overflow-hidden">
+                  <div className="bg-zinc-950/70 backdrop-blur-sm rounded-2xl rounded-tl-md shadow-2xl hover:shadow-[#ff2e63]/20 transition-all overflow-hidden border border-zinc-800 hover:border-[#ff2e63]/30">
                     {message.text && (
-                      <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
-                        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                      <div className="px-6 py-4 border-b border-zinc-800/50">
+                        <p className="text-sm text-zinc-300 leading-relaxed font-medium">
                           {message.text}
-                        </p>
-                      </div>
+          </p>
+        </div>
                     )}
                     {message.videoUrl && (
                       <div className="p-4">
-                        <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
+                        <div className="relative aspect-video w-full rounded-xl overflow-hidden bg-black shadow-2xl border-2 border-[#ff2e63]/20">
+                          <div className="absolute inset-0 bg-linear-to-br from-[#ff2e63]/10 to-transparent pointer-events-none"></div>
                           <video
                             controls
-                            className="w-full h-full"
+                            className="w-full h-full relative z-10"
                             src={message.videoUrl}
                             poster=""
                           >
                             Your browser does not support the video tag.
                           </video>
                         </div>
-                        <div className="mt-3 px-2">
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            <a
-                              href={message.videoUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline break-all"
-                            >
-                              {message.videoUrl}
-                            </a>
-                          </p>
-                        </div>
                       </div>
                     )}
                   </div>
                 )}
-
-                <p className="text-xs text-zinc-500 dark:text-zinc-500 mt-2 px-2">
-                  {message.timestamp.toLocaleTimeString()}
-                </p>
               </div>
+
+              {/* User Avatar */}
+              {message.type === "user" && (
+                <div className="shrink-0 w-12 h-12 rounded-2xl bg-linear-to-br from-[#ffb800] to-[#ff6b35] flex items-center justify-center shadow-xl border border-white/10">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                </div>
+              )}
             </div>
           ))}
 
           {isLoading && (
-            <div className="flex justify-start">
+            <div className="flex gap-3 animate-in fade-in duration-300">
+              <div className="shrink-0 w-12 h-12 rounded-2xl bg-linear-to-br from-[#ff2e63] to-[#ff6b35] flex items-center justify-center shadow-xl border border-white/10">
+                <svg
+                  className="w-6 h-6 text-white animate-spin"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
               <div className="max-w-3xl mr-12">
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl px-6 py-4 shadow-lg">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-zinc-400 dark:bg-zinc-600 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-zinc-400 dark:bg-zinc-600 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                    <div className="w-2 h-2 bg-zinc-400 dark:bg-zinc-600 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                <div className="bg-zinc-950/70 backdrop-blur-sm rounded-2xl rounded-tl-md px-6 py-4 shadow-xl border border-zinc-800">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-[#ff2e63] rounded-full animate-bounce"></div>
+                    <div className="w-3 h-3 bg-[#ff6b35] rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                    <div className="w-3 h-3 bg-[#ffb800] rounded-full animate-bounce [animation-delay:0.4s]"></div>
                   </div>
                 </div>
               </div>
@@ -204,36 +318,60 @@ export default function Home() {
       </div>
 
       {/* Input Area */}
-      <div className="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 px-4 py-4 shadow-lg">
+      <div className="relative z-10 bg-zinc-950/50 backdrop-blur-xl border-t border-[#ff2e63]/20 px-4 py-5 shadow-2xl">
         <div className="max-w-5xl mx-auto">
           <form onSubmit={handleSubmit} className="flex gap-3">
-            <input
-              type="text"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder="Type your message..."
-              disabled={isLoading}
-              className="flex-1 px-4 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            />
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Type your prompt..."
+                disabled={isLoading}
+                className="w-full px-6 py-3.5 rounded-xl border-2 border-zinc-800 bg-zinc-950/80 text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-[#ff2e63] focus:border-[#ff2e63] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg font-mono tracking-wide text-sm"
+              />
+              {inputText && (
+                <button
+                  type="button"
+                  onClick={() => setInputText("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-[#ff2e63] transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
             <button
               type="submit"
               disabled={isLoading || !inputText.trim()}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-zinc-400 dark:disabled:bg-zinc-700 text-white font-semibold rounded-xl transition-all duration-200 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center gap-2"
+              className="group relative px-6 py-3.5 bg-linear-to-br from-[#ff2e63] to-[#ff6b35] hover:from-[#ff1744] hover:to-[#ff2e63] disabled:from-zinc-800 disabled:to-zinc-900 text-white font-bold rounded-xl transition-all duration-200 disabled:cursor-not-allowed shadow-lg disabled:shadow-none transform hover:scale-105 active:scale-95 disabled:transform-none flex items-center gap-2 border border-white/10"
             >
-              <span>Send</span>
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                />
-              </svg>
+              {isLoading ? (
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span className="hidden sm:inline text-sm">Processing</span>
+                </>
+              ) : (
+                <>
+                  <span className="hidden sm:inline text-sm">Generate</span>
+                  <svg
+                    className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </>
+              )}
             </button>
           </form>
         </div>

@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Video Generator",
-  description: "Generate videos from text input",
+  title: "VIBE.GEN | Video Generation Engine",
+  description: "AI-powered video generation from text prompts",
 };
 
 export default function RootLayout({
