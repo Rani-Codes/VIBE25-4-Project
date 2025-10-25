@@ -30,6 +30,7 @@ async def root():
 """
 @app.get("/prompt")
 async def prompt_endpoint(prompt: str):
+    print("Prompt", prompt)
 
     filepath: str = generate_video(prompt)
     print("File Path", filepath)
