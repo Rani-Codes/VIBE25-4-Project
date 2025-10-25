@@ -1,4 +1,6 @@
 import os
+import re
+import time
 from typing import Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import ChatPromptTemplate
@@ -162,33 +164,6 @@ Generate ONLY the Python code for the Manim scene, with no additional explanatio
         except Exception as e:
             return False, f"Validation error: {str(e)}"
 
-def validate_and_save_code(code: str, filename: str = "educational_scene.py") -> bool:
-    """
-    Validate and save the generated Manim code to a file.
-    
-    Args:
-        code (str): The Manim code to save
-        filename (str): The filename to save to
-        
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    generator = ManimCodeGenerator()
-    is_valid, message = generator.validate_manim_code(code)
-    
-    if is_valid:
-        try:
-            with open(filename, 'w') as f:
-                f.write(code)
-            print(f"Code saved successfully to {filename}")
-            return True
-        except Exception as e:
-            print(f"Error saving file: {str(e)}")
-            return False
-    else:
-        print(f"Code validation failed: {message}")
-        return False
-
 def generate_video(prompt: str) -> str:
     """
     Generate a Manim video file from a text prompt.
@@ -205,8 +180,6 @@ def generate_video(prompt: str) -> str:
     Raises:
         Exception: If code generation or file creation fails
     """
-    import re
-    import time
     
     try:
         # Initialize the generator
@@ -246,32 +219,3 @@ def generate_video(prompt: str) -> str:
         
     except Exception as e:
         raise Exception(f"Error in generate_video: {str(e)}")
-
-# Example topics for testing
-EXAMPLE_TOPICS = [
-    "Explain the concept of derivatives using geometric intuition",
-    "Visualize how neural networks learn through backpropagation",
-    "Demonstrate the beauty of Euler's identity e^(iπ) + 1 = 0",
-    "Show how Fourier transforms decompose signals into frequencies",
-    "Illustrate the concept of limits in calculus",
-    "Explain linear algebra transformations and their geometric meaning",
-    "Visualize the proof of the Pythagorean theorem",
-    "Demonstrate how probability distributions work"
-]
-
-if __name__ == "__main__":
-    # Example usage
-    generator = ManimCodeGenerator()
-    
-    # Generate code for a mathematical concept
-    topic = "Explain the concept of derivatives using geometric intuition"
-    code = generator.generate_manim_code(topic)
-    
-    print("Generated Manim Code:")
-    print("=" * 50)
-    print(code)
-    print("=" * 50)
-    
-    # Validate the code
-    is_valid, message = generator.validate_manim_code(code)
-    print(f"Code validation: {message}")
