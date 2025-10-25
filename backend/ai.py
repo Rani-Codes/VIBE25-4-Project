@@ -138,19 +138,19 @@ IMPORTANT:
         Returns:
             str: Complete Manim Python code for creating the educational video
         """
-        enhanced_prompt = f"""
-        Educational Content: {educational_content}
+        video_length_text = f"- Target video length: approximately {video_length} seconds" if video_length else ""
+        enhanced_prompt = f"""Educational Content: {educational_content}
 
-        Additional Requirements:
-        - Target difficulty level: {difficulty_level}
-        {f"- Target video length: approximately {video_length} seconds" if video_length else ""}
-        - Include multiple scenes if the content is complex
-        - Add voice-over timing comments for narration
-        - Use advanced Manim features where appropriate
+Additional Requirements:
+- Target difficulty level: {difficulty_level}
+{video_length_text}
+- Include multiple scenes if the content is complex
+- Add voice-over timing comments for narration
+- Use advanced Manim features where appropriate
 
-        Create a comprehensive educational video that progressively builds understanding
-        of the topic while maintaining the 3Blue1Brown aesthetic and teaching style.
-        """
+Create a comprehensive educational video that progressively builds understanding
+of the topic while maintaining the 3Blue1Brown aesthetic and teaching style.
+"""
 
         return self.generate_manim_code(enhanced_prompt)
 
