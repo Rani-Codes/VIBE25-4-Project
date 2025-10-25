@@ -24,11 +24,11 @@ export default function Home() {
     scrollToBottom();
   }, [messages]);
 
-  const handleTestVideo = () => {
+  const handleExampleVideo = (title: string, description: string, videoUrl: string) => {
     const userMessage: Message = {
       id: Date.now().toString(),
       type: "user",
-      text: "Show me a test video",
+      text: title,
       timestamp: new Date(),
     };
 
@@ -40,13 +40,13 @@ export default function Home() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        text: "Here's a test video for you! This is the quadratic equation explained.",
-        videoUrl: "http://127.0.0.1:8000/media/videos/quadratic_manim/480p15/QuadraticEquation.mp4",
+        text: description,
+        videoUrl: videoUrl,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, assistantMessage]);
       setIsLoading(false);
-    }, 1500);
+    }, 800);
   };
 
   const handleClearChat = () => {
@@ -131,7 +131,7 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-3xl font-bold bg-linear-to-r from-[#ff2e63] via-[#ff6b35] to-[#ffb800] bg-clip-text text-transparent tracking-tight">
-                VIBE.GEN
+                Smarty Pants
           </h1>
               <p className="text-xs text-zinc-400 font-mono tracking-wide">
                 Video Generation Engine
@@ -140,17 +140,6 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-3">
-            <button
-              onClick={handleTestVideo}
-              disabled={isLoading}
-              className="px-3 py-1.5 text-xs font-semibold text-[#ff2e63] hover:text-white bg-[#ff2e63]/10 hover:bg-[#ff2e63]/20 border border-[#ff2e63]/30 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              Test
-            </button>
-            
             {messages.length > 0 && (
               <button
                 onClick={handleClearChat}
@@ -162,6 +151,21 @@ export default function Home() {
                 Clear
               </button>
             )}
+            <button className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ffb800] to-[#ff6b35] flex items-center justify-center shadow-xl border border-white/10 hover:scale-105 transition-transform">
+              <svg
+                className="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -187,18 +191,52 @@ export default function Home() {
                 Ready to Create
               </h3>
               <p className="text-zinc-400 mb-8 max-w-md mx-auto font-mono text-sm tracking-wide">
-                Type your prompt below or hit test to see magic happen
+                Type your prompt below or try one of these examples
               </p>
-              <div className="flex flex-wrap justify-center gap-4">
+              <div className="flex flex-wrap justify-center gap-4 max-w-3xl mx-auto">
                 <button
-                  onClick={handleTestVideo}
+                  onClick={() => handleExampleVideo(
+                    "Show me vector addition",
+                    "Here's an educational video explaining vector addition with visual examples.",
+                    "http://127.0.0.1:8000/media/videos/vector_addition/480p15/VectorAddition.mp4"
+                  )}
                   disabled={isLoading}
-                  className="group relative px-6 py-3 bg-linear-to-br from-[#ff2e63] to-[#ff6b35] hover:from-[#ff1744] hover:to-[#ff2e63] text-white font-bold rounded-xl shadow-2xl hover:shadow-[#ff2e63]/50 transition-all disabled:opacity-50 flex items-center gap-2 border border-white/20"
+                  className="group relative px-6 py-4 bg-zinc-950/70 hover:bg-zinc-900/70 border-2 border-[#ff2e63]/30 hover:border-[#ff2e63] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex flex-col items-center gap-2 min-w-[200px]"
                 >
-                  <svg className="w-4 h-4 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <svg className="w-6 h-6 text-[#ff2e63]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
-                  Launch Test
+                  <span className="text-sm">Vector Addition</span>
+                </button>
+
+                <button
+                  onClick={() => handleExampleVideo(
+                    "Explain the quadratic equation",
+                    "Here's a detailed explanation of the quadratic equation and how to solve it.",
+                    "http://127.0.0.1:8000/media/videos/quadratic_manim/480p15/QuadraticEquation.mp4"
+                  )}
+                  disabled={isLoading}
+                  className="group relative px-6 py-4 bg-zinc-950/70 hover:bg-zinc-900/70 border-2 border-[#ff6b35]/30 hover:border-[#ff6b35] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex flex-col items-center gap-2 min-w-[200px]"
+                >
+                  <svg className="w-6 h-6 text-[#ff6b35]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-sm">Quadratic Equation</span>
+                </button>
+
+                <button
+                  onClick={() => handleExampleVideo(
+                    "Teach me integral calculus",
+                    "Here's an introduction to integral calculus with step-by-step examples.",
+                    "http://127.0.0.1:8000/media/videos/integral_calculus/480p15/IntegralCalculus.mp4"
+                  )}
+                  disabled={isLoading}
+                  className="group relative px-6 py-4 bg-zinc-950/70 hover:bg-zinc-900/70 border-2 border-[#ffb800]/30 hover:border-[#ffb800] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex flex-col items-center gap-2 min-w-[200px]"
+                >
+                  <svg className="w-6 h-6 text-[#ffb800]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                  </svg>
+                  <span className="text-sm">Integral Calculus</span>
                 </button>
               </div>
             </div>
