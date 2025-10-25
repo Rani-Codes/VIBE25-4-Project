@@ -2,6 +2,8 @@
 
 A simple FastAPI backend application.
 
+INSTALL: `pip install langchain-community langchain-core`
+
 ## Setup
 
 1. Create a virtual environment:
