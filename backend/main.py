@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
+from fastapi.staticfiles import StaticFiles
 
 # Local AI - Nursalim
 from ai import generate_video
@@ -8,6 +9,8 @@ from ai import generate_video
 from meval import eval_file
 
 app = FastAPI()
+
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 
 @app.get("/")
@@ -33,6 +36,8 @@ async def prompt_endpoint(prompt: str):
 
     video_link: str = eval_file(filepath)
     print("Video Link", video_link)
+
+    video_link = "http://127.0.0.1:8000/media/videos/quadratic_manim/480p15/QuadraticEquation.mp4"
 
     return {"message": "Prompt received: {prompt}", "video_url": video_link}
 
