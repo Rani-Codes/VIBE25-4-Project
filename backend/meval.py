@@ -282,7 +282,7 @@ def eval_file(filepath: str) -> str:
         backend_dir = os.path.dirname(os.path.abspath(__file__))
         filepath = os.path.join(backend_dir, filepath)
     
-    return evaluator.evaluate(filepath, quality="l")
+    return evaluator.evaluate(filepath, quality="h")
 
 
 # Convenience function for simple usage (backward compatibility)
