@@ -154,38 +154,6 @@ IMPORTANT:
 
         return self.generate_manim_code(enhanced_prompt)
 
-    def validate_manim_code(self, code: str) -> tuple[bool, str]:
-        """
-        Basic validation of the generated Manim code.
-
-        Args:
-            code (str): The Manim code to validate
-
-        Returns:
-            tuple[bool, str]: (is_valid, error_message)
-        """
-        try:
-            # Basic syntax validation
-            compile(code, '<string>', 'exec')
-
-            # Check for required Manim components
-            required_elements = [
-                "class",
-                "Scene",
-                "def construct",
-                "self.play"
-            ]
-
-            for element in required_elements:
-                if element not in code:
-                    return False, f"Missing required element: {element}"
-
-            return True, "Code appears valid"
-
-        except SyntaxError as e:
-            return False, f"Syntax error: {str(e)}"
-        except Exception as e:
-            return False, f"Validation error: {str(e)}"
 
 def generate_video(prompt: str) -> str:
     """
@@ -218,8 +186,7 @@ def generate_video(prompt: str) -> str:
         clean_prompt = clean_prompt.lower()[:50]  # Limit length
 
         # Add timestamp to ensure uniqueness
-        timestamp = int(time.time())
-        filename = f"{clean_prompt}_{timestamp}_manim.py"
+        filename = f"{clean_prompt}_manim.py"
 
         # Create the output directory if it doesn't exist
         output_dir = "generated_videos"
@@ -238,81 +205,3 @@ def generate_video(prompt: str) -> str:
 
     except Exception as e:
         raise Exception(f"Error in generate_video: {str(e)}")
-
-# Example usage and utility functions
-def create_educational_video(topic: str, 
-                           difficulty: str = "intermediate", 
-                           duration: Optional[int] = None) -> str:
-    """
-    Convenience function to generate Manim code for educational videos.
-    
-    Args:
-        topic (str): The educational topic to create a video about
-        difficulty (str): Difficulty level ("beginner", "intermediate", "advanced")
-        duration (Optional[int]): Target duration in seconds
-        
-    Returns:
-        str: Generated Manim code
-    """
-    generator = ManimCodeGenerator()
-    return generator.generate_advanced_manim_code(
-        educational_content=topic,
-        difficulty_level=difficulty,
-        video_length=duration
-    )
-
-def validate_and_save_code(code: str, filename: str = "educational_scene.py") -> bool:
-    """
-    Validate and save the generated Manim code to a file.
-    
-    Args:
-        code (str): The Manim code to save
-        filename (str): The filename to save to
-        
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    generator = ManimCodeGenerator()
-    is_valid, message = generator.validate_manim_code(code)
-    
-    if is_valid:
-        try:
-            with open(filename, 'w') as f:
-                f.write(code)
-            print(f"Code saved successfully to {filename}")
-            return True
-        except Exception as e:
-            print(f"Error saving file: {str(e)}")
-            return False
-    else:
-        print(f"Code validation failed: {message}")
-        return False
-
-# Example topics for testing
-EXAMPLE_TOPICS = [
-    "Explain the concept of derivatives using geometric intuition",
-    "Visualize how neural networks learn through backpropagation",
-    "Demonstrate the beauty of Euler's identity e^(iπ) + 1 = 0",
-    "Show how Fourier transforms decompose signals into frequencies",
-    "Illustrate the concept of limits in calculus",
-    "Explain linear algebra transformations and their geometric meaning",
-    "Visualize the proof of the Pythagorean theorem",
-    "Demonstrate how probability distributions work"
-]
-
-if __name__ == "__main__":
-    # Example usage
-    generator = ManimCodeGenerator()
-    
-    # Generate code for a mathematical concept
-    topic = "Explain the concept of derivatives using geometric intuition"
-    code = generator.generate_manim_code(topic)
-    
-    print("Generated Manim Code:")
-    print("=" * 50)
-    print(code)
-    print("=" * 50)
-    
-    # Validate the code
-    is_valid, message = generator.validate_manim_code(code)
-    print(f"Code validation: {message}")
