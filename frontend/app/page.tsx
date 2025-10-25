@@ -131,7 +131,7 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-3xl font-bold bg-linear-to-r from-[#ff2e63] via-[#ff6b35] to-[#ffb800] bg-clip-text text-transparent tracking-tight">
-                VIBE.GEN
+                Smarty Pants
           </h1>
               <p className="text-xs text-zinc-400 font-mono tracking-wide">
                 Video Generation Engine
