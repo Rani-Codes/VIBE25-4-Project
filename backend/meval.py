@@ -4,8 +4,9 @@ import ast
 import glob
 import shutil
 import uuid
+import sys
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Set
 
 
 class ManimEvaluator:
@@ -33,6 +34,102 @@ class ManimEvaluator:
         
         # Create media directory if it doesn't exist
         os.makedirs(self.media_dir, exist_ok=True)
+    
+    def extract_plugin_imports(self, filepath: str) -> Set[str]:
+        """
+        Extract Manim plugin imports from a Python file.
+        
+        Args:
+            filepath: Path to the Python file.
+            
+        Returns:
+            Set of plugin package names that need to be installed.
+        """
+        if not os.path.exists(filepath):
+            return set()
+        
+        with open(filepath, 'r') as f:
+            code = f.read()
+        
+        try:
+            tree = ast.parse(code)
+        except SyntaxError:
+            return set()
+        
+        plugins = set()
+        
+        for node in ast.walk(tree):
+            # Handle: import manim_slides
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    if alias.name.startswith('manim_'):
+                        plugins.add(alias.name)
+            
+            # Handle: from manim_physics import *
+            elif isinstance(node, ast.ImportFrom):
+                if node.module and node.module.startswith('manim_'):
+                    # Extract the base package name
+                    base_package = node.module.split('.')[0]
+                    plugins.add(base_package)
+        
+        return plugins
+    
+    def install_plugins(self, plugins: Set[str]) -> None:
+        """
+        Install Manim plugins using pip.
+        
+        Args:
+            plugins: Set of plugin package names to install (with underscores).
+        
+        Note:
+            Manim plugins use hyphens on PyPI (manim-chemistry) but underscores
+            in imports (manim_chemistry). This method handles the conversion.
+        """
+        if not plugins:
+            return
+        
+        for plugin in plugins:
+            # Convert underscores to hyphens for PyPI package name
+            # e.g., manim_chemistry -> manim-chemistry
+            pypi_name = plugin.replace('_', '-')
+            
+            print(f"Installing Manim plugin: {pypi_name}")
+            try:
+                # Check if already installed (try both names)
+                for name in [plugin, pypi_name]:
+                    result = subprocess.run(
+                        [sys.executable, "-m", "pip", "show", name],
+                        capture_output=True,
+                        text=True
+                    )
+                    
+                    if result.returncode == 0:
+                        print(f"  ✓ {pypi_name} already installed")
+                        break
+                else:
+                    # Not installed, try to install using hyphenated PyPI name
+                    result = subprocess.run(
+                        [sys.executable, "-m", "pip", "install", pypi_name],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    print(f"  ✓ {pypi_name} installed successfully")
+                
+            except subprocess.CalledProcessError as e:
+                # Try with underscore name as fallback
+                try:
+                    print(f"  Retrying with alternative name: {plugin}")
+                    result = subprocess.run(
+                        [sys.executable, "-m", "pip", "install", plugin],
+                        capture_output=True,
+                        text=True,
+                        check=True
+                    )
+                    print(f"  ✓ {plugin} installed successfully")
+                except subprocess.CalledProcessError:
+                    print(f"  ✗ Failed to install {pypi_name}: {e.stderr}")
+                    # Continue anyway - the render might still work
     
     def extract_scene_classes(self, filepath: str) -> list[str]:
         """
@@ -65,9 +162,16 @@ class ManimEvaluator:
                 # Check if class inherits from Scene or its subclasses
                 for base in node.bases:
                     if isinstance(base, ast.Name):
-                        # Common Manim scene types
-                        if base.id in ['Scene', 'ThreeDScene', 'MovingCameraScene', 
-                                      'VectorScene', 'LinearTransformationScene']:
+                        # All Manim scene types from documentation
+                        if base.id in [
+                            'Scene',                    # Basic canvas for animations
+                            'ThreeDScene',              # 3D objects and animations
+                            'MovingCameraScene',        # Camera can be moved around
+                            'ZoomedScene',              # Supports zooming on sections
+                            'VectorSpaceScene',         # Suitable for vector spaces
+                            'LinearTransformationScene',# Linear transformation animations
+                            'Section',                  # Building blocks of segmented video API
+                        ]:
                             scene_classes.append(node.name)
                             break
         
@@ -100,6 +204,12 @@ class ManimEvaluator:
         # Validate filepath
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"File not found: {filepath}")
+        
+        # Detect and install any required plugins
+        plugins = self.extract_plugin_imports(filepath)
+        if plugins:
+            print(f"Detected Manim plugins: {', '.join(plugins)}")
+            self.install_plugins(plugins)
         
         # Extract scene classes if scene_name not provided
         if scene_name is None:
